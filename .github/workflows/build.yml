@@ -23,12 +23,20 @@ jobs:
       - name: Find project folder
         id: proj
         run: |
+          if [ ! -f settings.gradle.kts ] && [ ! -f settings.gradle ]; then
+            z=$(find . -maxdepth 2 -name '*.zip' -not -path './.git/*' | head -n 1)
+            if [ -n "$z" ]; then
+              echo "Unzipping $z"
+              mkdir -p _src
+              unzip -q -o "$z" -d _src
+            fi
+          fi
           if [ -f settings.gradle.kts ] || [ -f settings.gradle ]; then
             dir="."
           else
-            f=$(find . -maxdepth 3 \( -name settings.gradle.kts -o -name settings.gradle \) -not -path './.git/*' | head -n 1)
+            f=$(find . -maxdepth 4 \( -name settings.gradle.kts -o -name settings.gradle \) -not -path './.git/*' | head -n 1)
             if [ -z "$f" ]; then
-              echo "No settings.gradle(.kts) found in the repo"
+              echo "No settings.gradle(.kts) found"
               ls -R | head -50
               exit 1
             fi
